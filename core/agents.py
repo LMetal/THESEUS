@@ -41,7 +41,7 @@ LOCAL_LLM = OpenAIChat(
 # 2. Google Gemma 4 31B (Open Frontier Model on Google AI Studio)
 GOOGLE_API_KEY = os.getenv(
     "GOOGLE_API_KEY",
-    "AQ.Ab8RN6I0Y1SsIQwkFrxi3RKMZXPB1vKNCCxonZYW8tBy1jvrsA"
+    ""
 )
 GEMMA_MODEL_ID = os.getenv("GEMMA_MODEL_ID", "gemma-4-31b-it")
 
