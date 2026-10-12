@@ -1,0 +1,39 @@
+networks:
+  net-dmz:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+  net-internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+services:
+  # Hop 1 Target (Pivot Host) - Metasploitable 2
+  # Connected to net-dmz (attacker-facing) and net-internal (isolated network).
+  target-pivot:
+    image: tleemcjr/metasploitable2
+    container_name: target-pivot
+    stdin_open: true
+    tty: true
+    networks:
+      net-dmz:
+        ipv4_address: 172.28.0.5
+      net-internal:
+        ipv4_address: 172.30.0.5
+    ports:
+      - "2222:22"
+      - "4445:445"
+    restart: unless-stopped
+
+  # Hop 2 Target (Internal Target) - Drupal 8.5.0
+  # Isolated target connected ONLY to net-internal.
+  target-internal:
+    image: drupal:8.5.0-apache
+    container_name: target-internal
+    networks:
+      net-internal:
+        ipv4_address: 172.30.0.10
+    restart: unless-stopped

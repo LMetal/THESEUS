@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THESEUS — Attack Graph Dashboard</title>
+  <meta name="description" content="Live attack graph visualization and orchestrator chat for THESEUS offensive framework." />
+  <link rel="stylesheet" href="/style.css" />
+  <!--
+    D3.js v7.9.0 — pinned exact version via CDN with Subresource Integrity (SRI).
+    NOTE(security): update SRI hash if upgrading the library version.
+  -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"
+    integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i"
+    crossorigin="anonymous"
+  ></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Topbar ─────────────────────────────────────────────────────── -->
+  <header id="topbar" role="banner">
+    <div class="logo">THESEUS<span>/dashboard</span></div>
+
+    <label for="campaign-select" class="visually-hidden">Campaign</label>
+    <select id="campaign-select" aria-label="Select campaign"></select>
+
+    <div class="status-dot" id="ws-dot" aria-hidden="true"></div>
+    <span id="status-label">connecting…</span>
+
+    <div class="topbar-spacer"></div>
+
+    <nav class="node-legend" aria-label="Node type legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-subnet)"></div>Subnet</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-host)"></div>Host</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-service)"></div>Service</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-exploit)"></div>ExploitStep</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-cred)"></div>Credential</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-iface)"></div>Interface</div>
+    </nav>
+  </header>
+
+  <!-- ── Main ──────────────────────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- Graph panel -->
+    <section id="graph-panel" aria-label="Attack graph">
+      <svg id="graph-svg" role="img" aria-label="Force-directed attack graph"></svg>
+
+      <!-- Empty state -->
+      <div id="empty-state">
+        <div class="big">⬡</div>
+        <div>No graph data — select a campaign</div>
+      </div>
+
+      <!-- Timeline Replay Controls -->
+      <div id="timeline-controls" class="timeline-bar" aria-label="Attack Timeline Replay">
+        <button id="btn-replay-play" title="Play / Pause Attack Replay">▶</button>
+        <button id="btn-replay-step-back" title="Previous Step">⏮</button>
+        <input type="range" id="time-slider" min="1" max="1" value="1" step="1" aria-label="Timeline slider" />
+        <button id="btn-replay-step-fwd" title="Next Step">⏭</button>
+        <span id="time-step-label">Step 0 / 0</span>
+      </div>
+
+      <!-- Log Panel Overlay -->
+      <aside id="log-panel" aria-label="Orchestrator Activity Logs">
+        <div class="log-panel-header">
+          <h3>LOGS ORCHESTRATORE</h3>
+          <button id="log-panel-toggle" title="Toggle Log Panel">📋 Minimizza</button>
+        </div>
+        <div id="log-list" class="log-list-body"></div>
+      </aside>
+
+      <!-- Node detail overlay -->
+      <aside id="node-detail" aria-label="Node details" aria-live="polite">
+        <button id="node-detail-close" aria-label="Close node details">✕</button>
+        <h3 id="node-detail-title"></h3>
+        <div id="node-detail-body"></div>
+      </aside>
+    </section>
+  </div>
+
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip" role="tooltip"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

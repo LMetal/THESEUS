@@ -1,0 +1,36 @@
+networks:
+  net-dmz:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+  net-internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+services:
+  # Hop 1 Target (Pivot Host)
+  # Connected to net-dmz (attacker-facing) and net-internal (isolated network).
+  target-pivot:
+    image: drupal:8.5.0-apache
+    container_name: target-pivot
+    networks:
+      net-dmz:
+        ipv4_address: 172.28.0.5
+      net-internal:
+        ipv4_address: 172.30.0.5
+    ports:
+      - "8083:80"
+    restart: unless-stopped
+
+  # Hop 2 Target (Internal Target)
+  # Isolated target connected ONLY to net-internal.
+  target-internal:
+    image: drupal:8.5.0-apache
+    container_name: target-internal
+    networks:
+      net-internal:
+        ipv4_address: 172.30.0.10
+    restart: unless-stopped

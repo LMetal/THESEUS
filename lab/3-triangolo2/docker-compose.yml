@@ -1,0 +1,65 @@
+networks:
+  net-dmz2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.34.0.0/16
+  net-ab2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.36.1.0/24
+  net-bc2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.36.2.0/24
+  net-ca2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.36.3.0/24
+
+services:
+  # Vertice A (Target Alpha) - DMZ Entry Host: vsftpd 2.3.4 Backdoor (CVE-2011-2523)
+  # Servizio unico, nessun altro daemon bundled. Bind shell istantanea su 6200.
+  target-alpha2:
+    image: tleemcjr/metasploitable2
+    platform: linux/amd64
+    container_name: target-alpha2
+    networks:
+      net-dmz2:
+        ipv4_address: 172.34.0.5
+      net-ab2:
+        ipv4_address: 172.36.1.5
+      net-ca2:
+        ipv4_address: 172.36.3.5
+    ports:
+      - "8021:21"
+    restart: unless-stopped
+
+  # Vertice B (Target Beta) - Triangle Hop 2: Apache Struts2 (CVE-2017-5638)
+  # Servizio unico, RCE istantanea, nessuna installazione richiesta.
+  target-beta2:
+    image: piesecurity/apache-struts2-cve-2017-5638
+    platform: linux/amd64
+    container_name: target-beta2
+    networks:
+      net-ab2:
+        ipv4_address: 172.36.1.10
+      net-bc2:
+        ipv4_address: 172.36.2.10
+    restart: unless-stopped
+
+  # Vertice C (Target Gamma) - Triangle Hop 3: Shellshock (CVE-2014-6271)
+  # Servizio unico, RCE via header HTTP.
+  target-gamma2:
+    image: vulnerables/cve-2014-6271
+    platform: linux/amd64
+    container_name: target-gamma2
+    networks:
+      net-bc2:
+        ipv4_address: 172.36.2.15
+      net-ca2:
+        ipv4_address: 172.36.3.15
+    restart: unless-stopped

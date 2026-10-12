@@ -1,0 +1,66 @@
+networks:
+  net-dmz3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.33.0.0/16
+  net-ab3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.35.1.0/24
+  net-bc3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.35.2.0/24
+  net-ca3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.35.3.0/24
+
+services:
+  # Vertice A (Target Alpha) - DMZ Entry Host: Samba (SambaCry / CVE-2017-7494)
+  # Instant RCE, no DB initialization needed.
+  target-alpha3:
+    image: vulnerables/cve-2017-7494
+    platform: linux/amd64
+    container_name: target-alpha3
+    networks:
+      net-dmz3:
+        ipv4_address: 172.33.0.5
+      net-ab3:
+        ipv4_address: 172.35.1.5
+      net-ca3:
+        ipv4_address: 172.35.3.5
+    ports:
+      - "8445:445"
+      - "8139:139"
+    restart: unless-stopped
+
+  # Vertice B (Target Beta) - Triangle Hop 2: Apache Struts2 (CVE-2017-5638)
+  # Instant RCE on port 8080.
+  target-beta3:
+    image: piesecurity/apache-struts2-cve-2017-5638
+    platform: linux/amd64
+    container_name: target-beta3
+    networks:
+      net-ab3:
+        ipv4_address: 172.35.1.10
+      net-bc3:
+        ipv4_address: 172.35.2.10
+    restart: unless-stopped
+
+  # Vertice C (Target Gamma) - Triangle Hop 3: PHPMailer / WordPress (CVE-2016-10033)
+  # Instant RCE on port 80.
+  target-gamma3:
+    image: vulnerables/cve-2016-10033
+    platform: linux/amd64
+    container_name: target-gamma3
+    networks:
+      net-bc3:
+        ipv4_address: 172.35.2.15
+      net-ca3:
+        ipv4_address: 172.35.3.15
+    restart: unless-stopped

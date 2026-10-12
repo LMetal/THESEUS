@@ -1,0 +1,80 @@
+networks:
+  net-dmz2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+  net-ab2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.32.1.0/24
+  net-bc2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.32.2.0/24
+  net-cd2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.32.3.0/24
+  net-da2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.32.4.0/24
+
+services:
+  # Vertice A - unico host esposto in DMZ
+  # Apache Struts2 (Jakarta Multipart) -> RCE non autenticata (CVE-2017-5638, Equifax-style)
+  target-alpha2:
+    image: piesecurity/apache-struts2-cve-2017-5638
+    platform: linux/amd64 
+    container_name: target-alpha2
+    networks:
+      net-dmz2:
+        ipv4_address: 172.31.0.5
+      net-ab2:
+        ipv4_address: 172.32.1.5
+      net-da2:
+        ipv4_address: 172.32.4.5
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+
+  # Vertice B - Samba (SambaCry) -> RCE non autenticata
+  target-beta2:
+    image: vulnerables/cve-2017-7494
+    platform: linux/amd64
+    container_name: target-beta2
+    networks:
+      net-ab2:
+        ipv4_address: 172.32.1.10
+      net-bc2:
+        ipv4_address: 172.32.2.10
+    restart: unless-stopped
+
+  # Vertice C - WordPress + PHPMailer -> RCE non autenticata
+  target-gamma2:
+    image: vulnerables/cve-2016-10033
+    platform: linux/amd64
+    container_name: target-gamma2
+    networks:
+      net-bc2:
+        ipv4_address: 172.32.2.15
+      net-cd2:
+        ipv4_address: 172.32.3.15
+    restart: unless-stopped
+
+  # Vertice D - Shellshock (bash CGI) -> RCE non autenticata
+  target-delta2:
+    image: vulnerables/cve-2014-6271
+    platform: linux/amd64
+    container_name: target-delta2
+    networks:
+      net-cd2:
+        ipv4_address: 172.32.3.20
+      net-da2:
+        ipv4_address: 172.32.4.20
+    restart: unless-stopped
