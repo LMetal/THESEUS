@@ -205,7 +205,7 @@ Metasploit Layer 3 routing (`post/multi/manage/autoroute` and MSF auxiliary netw
 ### 1. Prerequisites
 * **Python 3.11+** and **uv** package manager installed.
 * **Docker** active to run Metasploit and target machines.
-* Access to a local LLM (default: `deepseek-v4-flash` on `http://127.0.0.1:8000/v1`).
+* Access to a local LLM (default: `deepseek-v4-flash q2` on `http://127.0.0.1:8000/v1`).
 * Metasploit RPC daemon running (`msfrpcd`) — **Metasploit Framework v6.4.0-dev**.
 
 ### 2. First-Run Setup (Recommended)
